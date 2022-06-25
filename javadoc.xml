@@ -1,5 +1,5 @@
 <project name="javacsv" default="javadoc" basedir=".">
-	<property name="src" location="src" />
+	<property name="src" location="src/main/java" />
 	<property name="doc" location="doc" />
 	<target name="init">
 		<!-- Create the doc folder -->

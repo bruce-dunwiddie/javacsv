@@ -1,3 +1,5 @@
-/doc/
 /.idea/
-/javacsv.iml
+/doc/
+/target/
+/*.iml
+/*.jar
