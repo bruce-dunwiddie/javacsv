@@ -35,6 +35,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import org.junit.After;
@@ -49,8 +50,8 @@ import com.csvreader.CsvWriter;
 public class AllTests {
 	public static void main(String[] args) throws Exception {
 		Class<AllTests> testClass = AllTests.class;
-		ArrayList<Method> setups = new ArrayList<Method>();
-		ArrayList<Method> tearDowns = new ArrayList<Method>();
+		ArrayList<Method> setups = new ArrayList<>();
+		ArrayList<Method> tearDowns = new ArrayList<>();
 
 		for (Method method : testClass.getDeclaredMethods()) {
 			int modifiers = method.getModifiers();
@@ -62,14 +63,14 @@ public class AllTests {
 				}
 
 				if (method.getAnnotation(After.class) != null) {
-					setups.add(method);
+					tearDowns.add(method);
 				}
 			}
 		}
 
 		System.out.println("Starting all tests.");
 
-		Object instance = testClass.newInstance();
+		Object instance = testClass.getConstructor().newInstance();
 
 		for (Method method : testClass.getDeclaredMethods()) {
 			int modifiers = method.getModifiers();
@@ -141,11 +142,7 @@ public class AllTests {
 	}
 
 	private static String generateString(char letter, int count) {
-		StringBuffer buffer = new StringBuffer(count);
-		for (int i = 0; i < count; i++) {
-			buffer.append(letter);
-		}
-		return buffer.toString();
+		return String.valueOf(letter).repeat(count);
 	}
 
 	private static void assertException(Exception expected, Exception actual) {
@@ -670,14 +667,14 @@ public class AllTests {
 	public void test31() throws Exception {
 		CsvWriter writer = new CsvWriter(new PrintWriter(
 				new OutputStreamWriter(new FileOutputStream("temp.csv"),
-						Charset.forName("UTF-8"))), ',');
+						StandardCharsets.UTF_8)), ',');
 		// writer will trim all whitespace and put this in quotes to preserve
 		// it's existence
 		writer.write(" \t \t");
 		writer.close();
 
 		CsvReader reader = new CsvReader(new InputStreamReader(
-				new FileInputStream("temp.csv"), Charset.forName("UTF-8")));
+				new FileInputStream("temp.csv"), StandardCharsets.UTF_8));
 		Assert.assertTrue(reader.readRecord());
 		Assert.assertEquals("", reader.get(0));
 		Assert.assertEquals(1, reader.getColumnCount());
@@ -852,7 +849,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test39() throws Exception {
+	public void test39() {
 		CsvReader reader = CsvReader.parse("user_id,name\r\n1,Bruce");
 		Assert.assertTrue(reader.getSafetySwitch());
 		reader.setSafetySwitch(false);
@@ -1062,7 +1059,7 @@ public class AllTests {
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		PrintWriter writer = new PrintWriter(new OutputStreamWriter(stream,
-				Charset.forName("UTF-8")));
+				StandardCharsets.UTF_8));
 		writer.println(test);
 		writer.close();
 
@@ -1070,7 +1067,7 @@ public class AllTests {
 		stream.close();
 
 		CsvReader reader = new CsvReader(new InputStreamReader(
-				new ByteArrayInputStream(buffer), Charset.forName("UTF-8")));
+				new ByteArrayInputStream(buffer), StandardCharsets.UTF_8));
 		Assert.assertTrue(reader.readRecord());
 		Assert.assertEquals(test, reader.get(0));
 		reader.close();
@@ -1084,7 +1081,7 @@ public class AllTests {
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		PrintWriter writer = new PrintWriter(new OutputStreamWriter(stream,
-				Charset.forName("UTF-8")));
+				StandardCharsets.UTF_8));
 		writer.write(test);
 		writer.close();
 
@@ -1092,7 +1089,7 @@ public class AllTests {
 		stream.close();
 
 		CsvReader reader = new CsvReader(new InputStreamReader(
-				new ByteArrayInputStream(buffer), Charset.forName("UTF-8")));
+				new ByteArrayInputStream(buffer), StandardCharsets.UTF_8));
 		Assert.assertTrue(reader.readRecord());
 		Assert.assertEquals(test, reader.get(0));
 		reader.close();
@@ -1176,8 +1173,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, ',', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.ISO_8859_1);
 		writer.write("1,2");
 		writer.write("3");
 		writer.write("blah \"some stuff in quotes\"");
@@ -1193,7 +1189,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 
 		Assert
@@ -1207,8 +1203,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, ',', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.ISO_8859_1);
 		writer.write("");
 		writer.write("1");
 		writer.close();
@@ -1216,7 +1211,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 
 		Assert.assertEquals("\"\",1", data);
@@ -1227,8 +1222,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, '\t', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, '\t', StandardCharsets.ISO_8859_1);
 		writer.write("1,2");
 		writer.write("3");
 		writer.write("blah \"some stuff in quotes\"");
@@ -1238,7 +1232,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 
 		Assert.assertEquals(
@@ -1250,8 +1244,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, '\t', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, '\t', StandardCharsets.ISO_8859_1);
 		Assert.assertTrue(writer.getUseTextQualifier());
 		writer.setUseTextQualifier(false);
 		Assert.assertFalse(writer.getUseTextQualifier());
@@ -1264,7 +1257,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 
 		Assert.assertEquals("1,2\t3\tblah \"some stuff in quotes\"\r\n", data);
@@ -1275,8 +1268,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, '\t', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, '\t', StandardCharsets.ISO_8859_1);
 		writer.write("data\r\nmore data");
 		writer.write(" 3\t", false);
 		writer.write(" 3\t");
@@ -1287,7 +1279,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 
 		Assert.assertEquals("\"data\r\nmore data\"\t3\t3\t\" 3\t\"\r\n", data);
@@ -1324,8 +1316,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, ',', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.ISO_8859_1);
 		writer.setForceQualifier(true);
 		writer.write(" data ");
 		writer.endRecord();
@@ -1334,7 +1325,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 
 		Assert.assertEquals("\"data\"\r\n", data);
@@ -1345,8 +1336,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, ',', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.ISO_8859_1);
 		Assert.assertEquals('\0', writer.getRecordDelimiter());
 		writer.setRecordDelimiter(';');
 		Assert.assertEquals(';', writer.getRecordDelimiter());
@@ -1357,7 +1347,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 
 		Assert.assertEquals("\"a;b\";", data);
@@ -1368,8 +1358,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, ',', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.ISO_8859_1);
 		Assert.assertEquals(CsvWriter.ESCAPE_MODE_DOUBLED, writer
 				.getEscapeMode());
 		writer.setEscapeMode(CsvWriter.ESCAPE_MODE_BACKSLASH);
@@ -1388,7 +1377,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 		Assert
 				.assertEquals(
@@ -1401,8 +1390,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, ',', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.ISO_8859_1);
 		writer.setEscapeMode(CsvWriter.ESCAPE_MODE_BACKSLASH);
 		writer.setUseTextQualifier(false);
 		writer.write("1,2");
@@ -1414,7 +1402,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 		Assert.assertEquals("1\\,2,3,blah \"some stuff in quotes\"\r\n", data);
 	}
@@ -1424,8 +1412,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, ',', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.ISO_8859_1);
 		writer.write("1");
 		writer.endRecord();
 		writer.writeComment("blah");
@@ -1436,7 +1423,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 		Assert.assertEquals("1\r\n#blah\r\n2\r\n", data);
 	}
@@ -1495,7 +1482,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test81() throws Exception {
+	public void test81() {
 		CsvReader reader = CsvReader.parse(generateString('a', 100001));
 		try {
 			reader.readRecord();
@@ -1509,12 +1496,10 @@ public class AllTests {
 	}
 
 	@Test
-	public void test82() throws Exception {
+	public void test82() {
 		StringBuilder holder = new StringBuilder(200010);
 
-		for (int i = 0; i < 100000; i++) {
-			holder.append("a,");
-		}
+		holder.append("a,".repeat(100000));
 
 		holder.append("a");
 
@@ -1542,9 +1527,7 @@ public class AllTests {
 	public void test84() throws Exception {
 		StringBuilder holder = new StringBuilder(200010);
 
-		for (int i = 0; i < 100000; i++) {
-			holder.append("a,");
-		}
+		holder.append("a,".repeat(100000));
 
 		holder.append("a");
 
@@ -1565,9 +1548,7 @@ public class AllTests {
 	public void test86() throws Exception {
 		StringBuilder holder = new StringBuilder(200010);
 
-		for (int i = 0; i < 99999; i++) {
-			holder.append("a,");
-		}
+		holder.append("a,".repeat(99999));
 
 		holder.append("a");
 
@@ -1594,10 +1575,9 @@ public class AllTests {
 	}
 
 	@Test
-	public void test88() throws Exception {
+	public void test88() {
 		try {
-			new CsvReader((String) null, ',', Charset
-					.forName("ISO-8859-1"));
+			new CsvReader((String) null, ',', StandardCharsets.ISO_8859_1);
 		} catch (Exception ex) {
 			assertException(new IllegalArgumentException(
 					"Parameter fileName can not be null."), ex);
@@ -1605,7 +1585,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test89() throws Exception {
+	public void test89() {
 		try {
 			new CsvReader("temp.csv", ',', null);
 		} catch (Exception ex) {
@@ -1615,7 +1595,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test90() throws Exception {
+	public void test90() {
 		try {
 			new CsvReader((Reader) null, ',');
 		} catch (Exception ex) {
@@ -1639,7 +1619,7 @@ public class AllTests {
 		stream.close();
 
 		CsvReader reader = new CsvReader(new ByteArrayInputStream(buffer),
-				Charset.forName("ISO-8859-1"));
+				StandardCharsets.ISO_8859_1);
 		reader.readRecord();
 		Assert.assertEquals(test, reader.get(0));
 		reader.close();
@@ -1660,24 +1640,23 @@ public class AllTests {
 		stream.close();
 
 		CsvReader reader = new CsvReader(new ByteArrayInputStream(buffer), ',',
-				Charset.forName("ISO-8859-1"));
+				StandardCharsets.ISO_8859_1);
 		reader.readRecord();
 		Assert.assertEquals(test, reader.get(0));
 		reader.close();
 	}
 
 	@Test
-	public void test112() throws Exception {
+	public void test112() {
 		try {
-			new CsvWriter((String) null, ',', Charset
-					.forName("ISO-8859-1"));
+			new CsvWriter((String) null, ',', StandardCharsets.ISO_8859_1);
 		} catch (Exception ex) {
 			assertException(new IllegalArgumentException("Parameter fileName can not be null."), ex);
 		}
 	}
 
 	@Test
-	public void test113() throws Exception {
+	public void test113() {
 		try {
 			new CsvWriter("test.csv", ',', (Charset) null);
 		} catch (Exception ex) {
@@ -1686,7 +1665,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test114() throws Exception {
+	public void test114() {
 		try {
 			new CsvWriter((Writer) null, ',');
 		} catch (Exception ex) {
@@ -1695,7 +1674,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test115() throws Exception {
+	public void test115() {
 		try {
 			CsvWriter writer = new CsvWriter("test.csv");
 
@@ -1712,8 +1691,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, ',', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.ISO_8859_1);
 		Assert.assertEquals('#', writer.getComment());
 		writer.setComment('~');
 		Assert.assertEquals('~', writer.getComment());
@@ -1729,7 +1707,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 
 		Assert.assertEquals("1;~blah;", data);
@@ -1740,8 +1718,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, '\t', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, '\t', StandardCharsets.ISO_8859_1);
 		Assert.assertEquals('\"', writer.getTextQualifier());
 		writer.setTextQualifier('\'');
 		Assert.assertEquals('\'', writer.getTextQualifier());
@@ -1749,19 +1726,19 @@ public class AllTests {
 		writer.write("1,2");
 		writer.write("3");
 		writer.write("blah \"some stuff in quotes\"");
-		writer.write("blah \'some stuff in quotes\'");
+		writer.write("blah 'some stuff in quotes'");
 		writer.endRecord();
 		writer.close();
 
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 
 		Assert
 				.assertEquals(
-						"1,2\t3\tblah \"some stuff in quotes\"\t\'blah \'\'some stuff in quotes\'\'\'\r\n",
+						"1,2\t3\tblah \"some stuff in quotes\"\t'blah ''some stuff in quotes'''\r\n",
 						data);
 	}
 
@@ -1770,8 +1747,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, ',', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.ISO_8859_1);
 		writer.write("1,2");
 		writer.write("3");
 		writer.endRecord();
@@ -1788,7 +1764,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 
 		Assert.assertEquals("\"1,2\",3\r\n1,2\t3\r\n", data);
@@ -1799,13 +1775,12 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, ',', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.ISO_8859_1);
 		writer.write("1,2");
 		writer.endRecord();
 
 		buffer = stream.toByteArray();
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 		Assert.assertEquals("", data);
 
@@ -1813,7 +1788,7 @@ public class AllTests {
 
 		buffer = stream.toByteArray();
 		stream.close();
-		data = Charset.forName("ISO-8859-1").decode(ByteBuffer.wrap(buffer))
+		data = StandardCharsets.ISO_8859_1.decode(ByteBuffer.wrap(buffer))
 				.toString();
 		Assert.assertEquals("\"1,2\"\r\n", data);
 		writer.close();
@@ -1824,8 +1799,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, ',', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.ISO_8859_1);
 		writer.writeRecord(new String[] { " 1 ", "2" }, false);
 		writer.writeRecord(new String[] { " 1 ", "2" });
 		writer.writeRecord(new String[] { " 1 ", "2" }, true);
@@ -1836,7 +1810,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 		Assert.assertEquals("1,2\r\n1,2\r\n\" 1 \",2\r\n", data);
 	}
@@ -1846,8 +1820,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, ',', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.ISO_8859_1);
 		writer.write("1,2");
 		writer.write(null);
 		writer.write("3 ", true);
@@ -1857,7 +1830,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 
 		Assert.assertEquals("\"1,2\",,\"3 \"\r\n", data);
@@ -1868,8 +1841,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, ',', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.ISO_8859_1);
 		writer.write("#123");
 		writer.endRecord();
 
@@ -1886,7 +1858,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 
 		Assert.assertEquals("\"#123\"\r\n\\#123\r\n\\#\r\n", data);
@@ -1897,8 +1869,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, ',', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.ISO_8859_1);
 		writer.setRecordDelimiter(';');
 		writer.setUseTextQualifier(false);
 		writer.setEscapeMode(CsvWriter.ESCAPE_MODE_BACKSLASH);
@@ -1910,7 +1881,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 
 		Assert.assertEquals("1\\;2;", data);
@@ -1921,8 +1892,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, ',', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.ISO_8859_1);
 		writer.setUseTextQualifier(false);
 		writer.setEscapeMode(CsvWriter.ESCAPE_MODE_BACKSLASH);
 
@@ -1938,7 +1908,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 
 		Assert.assertEquals("1\\,\\\\\\\r\\\n2\r\n1\\,\\\\\\;2;", data);
@@ -1949,8 +1919,7 @@ public class AllTests {
 		byte[] buffer;
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		CsvWriter writer = new CsvWriter(stream, ',', Charset
-				.forName("ISO-8859-1"));
+		CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.ISO_8859_1);
 		writer.setEscapeMode(CsvWriter.ESCAPE_MODE_BACKSLASH);
 
 		writer.write("1,\\2");
@@ -1960,7 +1929,7 @@ public class AllTests {
 		buffer = stream.toByteArray();
 		stream.close();
 
-		String data = Charset.forName("ISO-8859-1").decode(
+		String data = StandardCharsets.ISO_8859_1.decode(
 				ByteBuffer.wrap(buffer)).toString();
 
 		Assert.assertEquals("\"1,\\\\2\"\r\n", data);
@@ -2089,7 +2058,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test143() throws Exception {
+	public void test143() {
 		CsvReader reader = CsvReader.parse("\"" + generateString('a', 100001)
 				+ "\"");
 		try
@@ -2143,12 +2112,7 @@ public class AllTests {
 	@Test
 	public void test147() throws Exception {
 		// testing AppendLetter's buffer
-		StringBuilder data = new StringBuilder(20000);
-		for (int i = 0; i < 10000; i++) {
-			data.append("\\b");
-		}
-
-		CsvReader reader = CsvReader.parse(data.toString());
+		CsvReader reader = CsvReader.parse("\\b".repeat(10000));
 		reader.setUseTextQualifier(false);
 		reader.setEscapeMode(CsvReader.ESCAPE_MODE_BACKSLASH);
 		Assert.assertTrue(reader.readRecord());
@@ -2176,7 +2140,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test149() throws Exception {
+	public void test149() {
 		try
 		{
 			new CsvReader("C:\\somefilethatdoesntexist.csv");
@@ -2188,7 +2152,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test173() throws Exception {
+	public void test173() {
 		FailingReader fail = new FailingReader();
 
 		CsvReader reader = new CsvReader(fail);
@@ -2222,7 +2186,7 @@ public class AllTests {
 		}
 	}
 
-	private class FailingReader extends Reader {
+	private static class FailingReader extends Reader {
 		public boolean DisposeCalled = false;
 
 		public FailingReader() {

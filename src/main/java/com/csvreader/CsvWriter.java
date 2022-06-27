@@ -27,6 +27,7 @@ import java.io.OutputStreamWriter;
 import java.io.BufferedWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A stream based writer for writing delimited text data to a file or a stream.
@@ -43,13 +44,13 @@ public class CsvWriter {
 	private Charset charset = null;
 
 	// this holds all the values for switches that the user is allowed to set
-	private UserSettings userSettings = new UserSettings();
+	private final UserSettings userSettings = new UserSettings();
 
 	private boolean initialized = false;
 
 	private boolean closed = false;
 	
-	private String systemRecordDelimiter = System.getProperty("line.separator");
+	private final String systemRecordDelimiter = System.getProperty("line.separator");
 
 	/**
 	 * Double up the text qualifier to represent an occurrence of the text
@@ -98,7 +99,7 @@ public class CsvWriter {
 	 *            The path to the file to output the data.
 	 */
 	public CsvWriter(String fileName) {
-		this(fileName, Letters.COMMA, Charset.forName("ISO-8859-1"));
+		this(fileName, Letters.COMMA, StandardCharsets.ISO_8859_1);
 	}
 
 	/**
@@ -412,8 +413,8 @@ public class CsvWriter {
 	public void writeRecord(String[] values, boolean preserveSpaces)
 			throws IOException {
 		if (values != null && values.length > 0) {
-			for (int i = 0; i < values.length; i++) {
-				write(values[i], preserveSpaces);
+			for (String value : values) {
+				write(value, preserveSpaces);
 			}
 
 			endRecord();
@@ -531,7 +532,7 @@ public class CsvWriter {
 		close(false);
 	}
 
-	private class Letters {
+	private static class Letters {
 		public static final char LF = '\n';
 
 		public static final char CR = '\r';
@@ -551,7 +552,7 @@ public class CsvWriter {
 		public static final char NULL = '\0';
 	}
 
-	private class UserSettings {
+	private static class UserSettings {
 		// having these as publicly accessible members will prevent
 		// the overhead of the method call that exists on properties
 		public char TextQualifier;
@@ -584,7 +585,7 @@ public class CsvWriter {
 		int found = original.indexOf(pattern);
 
 		if (found > -1) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			int start = 0;
 
 			while (found != -1) {

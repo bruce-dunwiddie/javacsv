@@ -3,14 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>net.sourceforge.javacsv</groupId>
+    <groupId>com.csvreader</groupId>
     <artifactId>javacsv</artifactId>
-    <version>2.1</version>
+    <version>2.2</version>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -19,8 +19,8 @@
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
     <packaging>jar</packaging>
-    <name>Java CVS Reader and Writer</name>
-    <url>http://javacsv.sourceforge.net/</url>
+    <name>Java CSV Reader and Writer</name>
+    <url>https://github.com/bruce-dunwiddie/javacsv</url>
     <description>Java CSV is a small fast open source java library for reading and writing CSV and plain delimited text files. All kinds of CSV files can be handled, text qualified, Excel formatted, etc.</description>
     <licenses>
         <license>
@@ -29,7 +29,7 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:cvs:pserver:anonymous:@javacsv.cvs.sourceforge.net:/cvsroot/javacsv:javacsv</connection>
-        <url>http://javacsv.cvs.sourceforge.net/javacsv/javacsv</url>
+        <connection>scm:git:https://github.com/bruce-dunwiddie/javacsv.git</connection>
+        <url>https://github.com/bruce-dunwiddie/javacsv</url>
     </scm>
 </project>
